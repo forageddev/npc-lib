@@ -1,0 +1,54 @@
+plugins {
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+}
+
+allprojects {
+    group 'org.github.thickdog'
+    version '1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://oss.sonatype.org/content/repositories/central' }
+    }
+}
+
+subprojects {
+    apply plugin: "maven-publish"
+    apply plugin: "com.github.johnrengelman.shadow"
+    apply plugin: "org.jetbrains.kotlin.jvm"
+
+    dependencies {
+        compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
+        compileOnly 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
+    }
+
+    compileKotlin {
+        kotlinOptions.javaParameters = true
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
+
+        exclude "**/*.kotlin_metadata"
+        exclude "**/*.kotlin_builtins"
+        exclude "META-INF/"
+
+        archiveFileName = "npc-lib_${project.name}.jar"
+    }
+
+    publishing {
+        publications {
+            shadow(MavenPublication) { publication ->
+                project.shadow.component(publication)
+            }
+        }
+    }
+
+    tasks.build.dependsOn(shadowJar, publishing)
+}

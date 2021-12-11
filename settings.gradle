@@ -1,0 +1,3 @@
+rootProject.name = 'npc-lib'
+include 'shared'
+
